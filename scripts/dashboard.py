@@ -137,6 +137,8 @@ def corr_line_plot( df, values, index, countries ):
   ax.set_xlabel(index)
   ax.set_ylabel(values)
 
+  plt.ylim([0, 1])
+
   st.pyplot(fig)
 
 # IMPORT DATA
