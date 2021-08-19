@@ -9,7 +9,6 @@ from sklearn.linear_model import LinearRegression
 
 sns.set_theme()
 
-
 # STAT FUNCTIONS
 
 def compute_ts_correlation( start_year, end_year, country_1, country_2, metric ):
@@ -35,8 +34,11 @@ def compute_ts_block_correlation( country_1, country_2, metric, time_periods ):
 
 def get_average_correlation( metric, countries, time_periods ):
   used_countries = []
-  correlations = [ [], [] ]
-  out = []
+  period_corrs = []
+  avg_corrs = []
+
+  for period in time_periods:
+    period_corrs.append( [] )
 
   for country_1 in countries:
     used_countries.append( country_1 )
@@ -49,21 +51,26 @@ def get_average_correlation( metric, countries, time_periods ):
       if country_1 == country_2:
         continue
 
-      outputs = compute_ts_block_correlation( country_1, country_2, metric )
+      outputs = compute_ts_block_correlation( 
+        country_1, 
+        country_2, 
+        metric,
+        time_periods
+      )
 
       for i in range( 0, len(time_periods) ):
-        correlations[i].append( abs(outputs[i][0]) )
+        period_corrs[i].append( abs(outputs[i][0]) )
 
-  for period in correlations:
+  for period in period_corrs:
     total = 0
 
     for correlation in period:
 
       total += correlation
 
-    out.append( total / len(period) )
+    avg_corrs.append( total / len(period) )
 
-  return out, correlations
+  return avg_corrs, period_corrs
 
 # PLOTTING FUNCTIONS
 
@@ -102,6 +109,34 @@ def swarmplot( df, values, index, countries, years ):
 
   st.pyplot(fig)
 
+def corr_line_plot( df, values, index, countries ):
+  time_periods = [ 
+    [ 1995, 2000 ], 
+    [ 2000, 2005 ],
+    [ 2005, 2010 ],
+    [ 2010, 2015 ],
+    [ 2015, 2020 ] 
+  ]
+
+  avg_corrs, corr = get_average_correlation( values, countries, time_periods )
+
+  x = []
+  y = avg_corrs
+
+  for period in time_periods:
+    x.append( str(period[0]) + '-' + str(period[1]) )
+  
+  fig, ax = plt.subplots()
+
+  fig.suptitle( values + ' vs ' + index )
+  fig.set_size_inches( 10, 6 )
+
+  ax.plot( x, y )
+
+  ax.set_xlabel(index)
+  ax.set_ylabel(values)
+
+  st.pyplot(fig)
 
 # IMPORT DATA
 df = pd.read_csv("./data/econ_data.csv")
@@ -122,7 +157,6 @@ selected_metric = st.sidebar.selectbox(
   'Select Metric',
   metrics
 )
-
 
 # title
 st.title('World Economies')
@@ -174,3 +208,4 @@ st.write(
   for five year periods.'''
 )
 
+corr_line_plot( df, selected_metric, 'year', selected_countries )
