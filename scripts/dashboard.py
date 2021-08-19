@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import scipy.stats as stats
 import streamlit as st
-import os
 from sklearn.linear_model import LinearRegression
 
 sns.set_theme()
@@ -145,7 +144,7 @@ def corr_line_plot( df, values, index, countries ):
 df = pd.read_csv("./data/econ_data.csv")
 
 countries = df['country'].unique()
-metrics = df.columns[4:]
+metrics = df.columns[3:]
 
 # STREAMLET
 
