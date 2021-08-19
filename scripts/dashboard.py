@@ -100,7 +100,8 @@ def swarmplot( df, values, index, countries, years ):
   fig.suptitle( values + ' vs ' + index )
   fig.set_size_inches( 10, 6 )
 
-  filt_df = df[ ( df['year'] >= years[0] ) & ( df['year'] <= years[1] ) ]
+  filt_df = df[ df['country'].isin(countries) ]
+  filt_df = filt_df[ ( filt_df['year'] >= years[0] ) & ( filt_df['year'] <= years[1] ) ]
 
   sns.swarmplot( ax=ax, x='country', y=values, data=filt_df )
 
