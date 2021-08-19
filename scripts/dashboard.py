@@ -211,4 +211,7 @@ st.write(
   for five year periods.'''
 )
 
-corr_line_plot( df, selected_metric, 'year', selected_countries )
+if len(selected_countries) > 1:
+  corr_line_plot( df, selected_metric, 'year', selected_countries )
+else:
+  st.write('''*Error: Correlations must be between more then one country.*''')
