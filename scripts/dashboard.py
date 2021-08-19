@@ -10,7 +10,7 @@ from sklearn.linear_model import LinearRegression
 sns.set_theme()
 
 
-# utility functions
+# STAT FUNCTIONS
 
 def compute_ts_correlation( start_year, end_year, country_1, country_2, metric ):
   df_base = df.loc[(df['year'] >= start_year) & (df['year'] < end_year)]
@@ -65,37 +65,53 @@ def get_average_correlation( metric, countries, time_periods ):
 
   return out, correlations
 
+# PLOTTING FUNCTIONS
 
-def pivot_plot( df, values, index, columns, countries ):
-  pivot = df.pivot_table( values=values, index=index, columns=columns )
-
+def line_plot( df, values, index, countries, years ):
   fig, ax = plt.subplots()
-
-  if countries == 'all':
-    countries = df['country'].unique()
-
+  
   for country in countries:
     filt_df = df[ df['country'] == country ]
-
+    filt_df = filt_df[ ( filt_df['year'] >= years[0] ) & ( filt_df['year'] <= years[1] ) ]
+  
     ax.plot( filt_df[index], filt_df[values], label=country )
 
   ax.set_xlabel(index)
   ax.set_ylabel(values)
 
   fig.suptitle( values + ' vs ' + index )
+  fig.set_size_inches( 10, 6 )
 
   ax.legend()
 
   st.pyplot(fig)
 
 
-# import data
+def swarmplot( df, values, index, countries, years ):
+  fig, ax = plt.subplots()
+
+  fig.suptitle( values + ' vs ' + index )
+  fig.set_size_inches( 10, 6 )
+
+  filt_df = df[ ( df['year'] >= years[0] ) & ( df['year'] <= years[1] ) ]
+
+  sns.swarmplot( ax=ax, x='country', y=values, data=filt_df )
+
+  ax.set_xlabel(index)
+  ax.set_ylabel(values)
+
+  st.pyplot(fig)
+
+
+# IMPORT DATA
 df = pd.read_csv("./data/econ_data.csv")
 
 countries = df['country'].unique()
-metrics = df.columns[3:]
+metrics = df.columns[4:]
 
-# sidebar
+# STREAMLET
+
+# side bar
 selected_countries = st.sidebar.multiselect(
   'Select Countries',
   countries,
@@ -112,8 +128,49 @@ selected_metric = st.sidebar.selectbox(
 st.title('World Economies')
 
 st.write(
-'''This app dashboard was build to visualize how globalization has 
-progressed since the 1990s'''
+  '''This app dashboard was build to visualize how globalization has progressed
+  since the 1990s.'''
 )
 
-pivot_plot( df, selected_metric, 'year', 'country', selected_countries )
+# distribution
+st.write("# Distribution")
+
+st.write(
+  '''This section display distributions in the selected metric for each country.
+  Each year (or change between them) is represented by a dot.'''
+)
+
+ds_years = st.slider(
+  'Select Years for Distribution',
+  1992,
+  2020,
+  (1992, 2020)
+)
+
+swarmplot( df, selected_metric, 'year', selected_countries, ds_years )
+
+# time series
+st.write("# Time Series")
+
+st.write(
+  '''This section displays lineplots of the selected metric over time for each
+  country.'''
+)
+
+ts_years = st.slider(
+  'Select Years for Timeseries',
+  1992,
+  2020,
+  (1992, 2020)
+)
+
+line_plot( df, selected_metric, 'year', selected_countries, ts_years )
+
+# timeseries correlation
+st.write("# Time Series Correlation")
+
+st.write(
+  '''This section shows the average correlation between the selected countries
+  for five year periods.'''
+)
+
