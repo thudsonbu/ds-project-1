@@ -1,5 +1,5 @@
 # Description
-This project contains two analytics projects. The first regards modeling covid
+This repository contains two analytics projects. The first regards modeling covid
 case data and the second is an analysis of the five largest economies interconnectedness
 in search of patterns of globalization.
 
